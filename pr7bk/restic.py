@@ -273,7 +273,8 @@ class Restic:
             args += ["--exclude-larger-than", f"{j.larger_than_gb}G"]
         if j.open_files and windows:
             args.append("--use-fs-snapshot")
-        return args + ["--", *j.sources]
+        # a folder that isn't there is PR7-BK's own warning (restic 0.20 would warn again)
+        return args + ["--", *[p for p in j.sources if os.path.exists(p)]]
 
     def backup(self, on_progress=None, on_warning=None) -> LastRun:
         start = time.monotonic()
@@ -373,13 +374,21 @@ class Restic:
         windows = sys.platform == "win32" if windows is None else windows
         if not items:
             return {"restored": 0, "skipped": 0, "renamed": 0, "files": []}
-        base = target or (local_path(items[0], windows) if windows else os.path.dirname(items[0]))
         if target:
             os.makedirs(target, exist_ok=True)
-        stage_root = target if target else (ntpath.splitdrive(base)[0] + "\\" if windows else os.path.dirname(base))
-        stage = os.path.join(stage_root if os.access(stage_root, os.W_OK) else data_folder(),
-                             f".pr7bk-restore-{uuid.uuid4().hex[:8]}")
-        os.makedirs(stage, exist_ok=True)
+            stage_root = target
+        else:
+            # beside where the files go (same drive: the final moves are renames), at the nearest folder that exists;
+            # never a drive's root, which ordinary users can't write to
+            stage_root = os.path.dirname(local_path(items[0], windows))
+            while stage_root and not os.path.isdir(stage_root) and os.path.dirname(stage_root) != stage_root:
+                stage_root = os.path.dirname(stage_root)
+        stage = os.path.join(stage_root, f".pr7bk-restore-{uuid.uuid4().hex[:8]}")
+        try:
+            os.makedirs(stage)
+        except OSError:
+            stage = os.path.join(data_folder(), f"restore-{uuid.uuid4().hex[:8]}")
+            os.makedirs(stage)
         args = ["restore", snap.id, "--target", stage]
         for it in items:
             args += ["--include", it]

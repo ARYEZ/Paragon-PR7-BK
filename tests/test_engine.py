@@ -115,17 +115,17 @@ def test_backup_versions_and_restore(data, studio, tmp_path):
     old = r.snapshots()[-1]
     notes = next(n.path for n in r.ls(old.id) if n.name == "titles_notes.txt")
     out = tmp_path / "Restored"
-    res = r.restore(old, [notes], str(out), windows=False)
+    res = r.restore(old, [notes], str(out))
     assert res["restored"] == 1 and (out / "titles_notes.txt").read_text() == "credits order v2\n"
     folder = next(n.path for n in r.ls(old.id) if n.name == "titles" and n.is_dir)
     (studio / "Projects" / "titles" / "titles_notes.txt").write_text("edited since\n")
-    res = r.restore(old, [folder], None, exists="keepboth", windows=False)
+    res = r.restore(old, [folder], None, exists="keepboth")
     assert res["renamed"] == 2 and (studio / "Projects" / "titles" / "titles_notes.txt").read_text() == "edited since\n"
     kept = [p for p in os.listdir(studio / "Projects" / "titles") if p.startswith("titles_notes (")]
     assert len(kept) == 1 and open(studio / "Projects" / "titles" / kept[0]).read() == "credits order v2\n"
-    res = r.restore(old, [notes], None, exists="overwrite", windows=False)
+    res = r.restore(old, [notes], None, exists="overwrite")
     assert res["restored"] == 1 and (studio / "Projects" / "titles" / "titles_notes.txt").read_text() == "credits order v2\n"
-    assert r.restore(old, [notes], None, exists="skip", windows=False)["skipped"] == 1
+    assert r.restore(old, [notes], None, exists="skip")["skipped"] == 1
     assert not [p for p in os.listdir(studio / "Projects") if p.startswith(".pr7bk-restore")]      # staging gone
 
 
