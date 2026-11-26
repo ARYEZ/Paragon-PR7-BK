@@ -1,3 +1,3 @@
 """Paragon PR7-BK: backups, the way Duplicati makes them (restic does the work)."""
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
