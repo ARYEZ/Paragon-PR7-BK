@@ -404,7 +404,7 @@ class Restic:
                 self._place(staged, dest, exists, snap, result)
             return result
         finally:
-            shutil.rmtree(stage, ignore_errors=True)
+            _rmtree(stage)
 
     def _place(self, src: str, dest: str, exists: str, snap: Snapshot, result: dict):
         if os.path.isdir(src) and not os.path.islink(src):
@@ -438,6 +438,21 @@ class Restic:
             cand = f"{stem} ({snap.label()} {n}){ext}"
             n += 1
         return cand
+
+
+def _rmtree(path: str):
+    """Remove the staging folder even where restic restored a file read-only (its Windows attributes): clear the flag
+    and retry, as PR7-E's delete does."""
+    import stat
+
+    def force(func, p, _exc):
+        try:
+            os.chmod(p, stat.S_IWRITE | stat.S_IREAD | stat.S_IEXEC)
+            func(p)
+        except OSError:
+            pass
+    if os.path.isdir(path):
+        shutil.rmtree(path, onexc=force)
 
 
 def as_dict(last: LastRun) -> dict:
