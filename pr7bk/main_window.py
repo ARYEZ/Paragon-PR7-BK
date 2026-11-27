@@ -858,6 +858,17 @@ class MainWindow(QMainWindow):
     def add(self):
         self._open_wizard(Job(""), new=True)
 
+    def new_home_backup(self) -> Job:
+        """PR7-OS's "Back up to a drive" (Paragon Welcome): your home folder, every day at 03:00, without what's
+        thrown away anyway (caches, the Trash); you choose the drive and the password in the wizard."""
+        home = os.path.expanduser("~")
+        j = Job("Home folder", sources=[home],
+                excludes=[os.path.join(home, ".cache"), os.path.join(home, ".local", "share", "Trash"),
+                          os.path.join(home, ".var", "app", "*", "cache")],
+                schedule=jobs.Schedule("daily", "03:00"))
+        self._open_wizard(j, new=True)
+        return j
+
     def edit(self, job: Job | None):
         if job is not None and job.id not in self.running:
             self._open_wizard(copy.deepcopy(job), new=False)

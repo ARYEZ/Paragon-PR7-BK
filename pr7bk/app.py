@@ -3,6 +3,7 @@
     PR7-BK.exe                    the window (one per user: a second start brings the first to the front)
     PR7-BK.exe --run ID           run one backup with no window (Windows' Task Scheduler starts this); exit 0 ok,
                                   1 finished with warnings, 2 failed
+    PR7-BK.exe --new-home-backup  open the wizard with your home folder, every day (PR7-OS's Welcome: Back up to a drive)
     PR7-BK.exe --unregister       remove every backup's scheduled task (the uninstaller); backups themselves stay
     PR7-BK.exe --version
     PR7-BK.exe --selftest OUT.json   a real backup with the bundled restic offscreen: folders backed up through the
@@ -195,6 +196,8 @@ def main(argv: list[str] | None = None) -> int:
     from .main_window import MainWindow
     w = MainWindow()
     w.show()
+    if "--new-home-backup" in argv:
+        w.new_home_backup()
     from PySide6.QtCore import QTimer
     follow = QTimer(w)                            # one finish for the family: follow another app's switch
     follow.timeout.connect(lambda: finish.follow(theme.FINISH, w.set_finish))

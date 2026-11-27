@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0
+
+- **Schedules work on Linux (PR7-OS)**: each scheduled backup is a systemd user timer (no administrator rights, nothing
+  running in the background), and one missed while the PC was off or asleep runs as soon as it's on again.
+- **A ready-made home backup**: `--new-home-backup` (PR7-OS's Welcome: Back up to a drive) opens the wizard with your
+  home folder, every day at 03:00, without caches and the Trash; you choose where it goes and its password.
+Nothing changes on Windows.
+
 ## 0.1.1
 
 - The family list (`family.py`) knows the three newest Paragon apps: PR7-HW (hardware information), PR7-BK

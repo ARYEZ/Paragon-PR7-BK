@@ -93,3 +93,12 @@ def fill_wizard(w, studio, dest, name="Studio projects", password="correct horse
         w.w_keep_last.setChecked(True)
         w.w_last.setValue(keep_last)
     return w.next_step()
+
+
+
+@pytest.fixture(autouse=True)
+def windows_schedules(monkeypatch):
+    """The shared tests check Windows' Task Scheduler commands (a stand-in schtasks) on any system; tests/test_linux.py
+    switches Linux's systemd timers back on."""
+    from pr7bk import schedule
+    monkeypatch.setattr(schedule, "LINUX", False)

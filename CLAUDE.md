@@ -23,6 +23,10 @@ it runs on Linux for tests. The owner writes Python; explain the why.
 - `pr7bk/schedule.py`: Task Scheduler task \Paragon\PR7-BK\<id> running `PR7-BK.exe --run <id>` (schtasks; `run=` for
   tests). `pr7bk/runs.py`: one run (window and --run): password, ensure the repository, backup, log in <data>/logs,
   LastRun written back to jobs.json (the window re-reads it every 15 s).
+- **Linux (PR7-OS)**: `schedule.py` writes systemd user units (~/.config/systemd/user/pr7bk-<id>.timer/.service,
+  OnCalendar from the Schedule, Persistent=true) and runs `systemctl --user`; `schedule.LINUX` (the shared tests set it
+  False through conftest: they check Windows' schtasks commands). `MainWindow.new_home_backup` / `--new-home-backup`:
+  the wizard with home, daily 03:00, caches and Trash left out. tests/test_linux.py.
 - `pr7bk/main_window.py`: home cards (`JobCard`), the five-step wizard (`step_problem` checks each step; the source tree
   ticks folders, unticking inside a chosen one adds an exclude), Restore (versions, a checkable file tree from the
   backed-up folders down, search), log dialog; restic on threads through `_Bridge` (`sync = True` inline); `_ask` /
