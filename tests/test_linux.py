@@ -51,6 +51,7 @@ def test_no_schedule_and_deleting_remove_the_timer(linux):
 def test_the_ready_made_home_backup(qapp, monkeypatch, tmp_path):
     from pr7bk.main_window import MainWindow
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))        # Path.home() on Windows
     w = MainWindow(sync=True)
     j = w.new_home_backup()
     assert j.sources == [str(tmp_path)] and (j.schedule.kind, j.schedule.at) == ("daily", "03:00")
